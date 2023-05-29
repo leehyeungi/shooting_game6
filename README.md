@@ -14,12 +14,13 @@ from boss import Boss
 from item import Item
 from shield import Shield
 from plus import Plus
+from minus import Minus
 from animation import Animation
 
 pygame.init()
 
 # 게임 화면 설정
-image_list = ['background1.png','backgrounds1.png'] #배경회면 2개 더 늘려주기
+image_list = ['background.png','backgrounds.png'] #배경회면 2개 더 늘려주기
 size = (1000, 986)
 screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
 pygame.display.set_caption("슈팅 게임")
@@ -79,6 +80,12 @@ plus.rect.y = -4000
 plus_group = pygame.sprite.Group()
 plus_group.add(plus)
 
+minus = Minus()
+minus.rect.x = - 3000
+minus.rect.y = - 3000
+minus_group = pygame.sprite.Group()
+minus_group.add(minus)
+
 bullet_group = pygame.sprite.Group()
 
 #변수
@@ -98,7 +105,7 @@ blt_rect = 0
 count_li = [0, 1]
 
 #클래스 리스트
-cls_list = [shield, plus]
+cls_list = [shield, plus, minus]
 
 for i in range(10000):
     b = Bullet()
@@ -140,9 +147,6 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_1:
-                bullets += 1
-                blt_count += 1
             if event.key == pygame.K_SPACE:
                 #player.rect.x + 67 / 2을 기준점으로 시작 홀수면 -10 짝수면 +10
                 bullet_group.sprites()[bullets].shoot(player.rect.x + 67 / 2, player.rect.y)
@@ -188,6 +192,7 @@ while running:
     item_group.update()
     shield_group.update()
     plus_group.update()
+    minus_group.update()
 
     # 충돌 처리
     if enemy.alive():
@@ -216,7 +221,7 @@ while running:
         hit = pygame.sprite.groupcollide(item_group, player_group, True, False)
         if hit:
             shields += 1
-            vle = random.randint(0, 1)
+            vle = random.randint(0, 2)
             cls_list[vle].rect.x = (player.rect.x + player.rect.width/2) - cls_list[vle].rect.width/2
             cls_list[vle].rect.y = player.rect.y
             count += 1
@@ -224,7 +229,8 @@ while running:
                 shield_score += 1
             if vle == 1:
                 blt_count += 1
-                blt_rect += 10            
+            if vle == 2:
+                blt_count -= 1
 
     if shield_score == 1:
         shield_group.add(shield)
@@ -254,6 +260,7 @@ while running:
     item_group.draw(screen)
     shield_group.draw(screen)
     plus_group.draw(screen)
+    minus_group.draw(screen)
 
     # 점수 출력
     font = pygame.font.Font(None, 30)
